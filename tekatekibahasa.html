@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Urutkan Kata Bahasa Inggris</title>
+  <style>
+    body {
+      background-color: #006400; /* hijau tua */
+      font-family: Arial, sans-serif;
+      color: #000;
+      padding: 20px;
+    }
+
+    .container {
+      background-color: #90EE90; /* hijau muda */
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    .word-box {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .word {
+      padding: 10px 15px;
+      background-color: #ffffff;
+      border: 2px solid #444;
+      border-radius: 5px;
+      cursor: move;
+      user-select: none;
+    }
+
+    #drop-area {
+      min-height: 60px;
+      border: 2px dashed #000;
+      background-color: #ffffff;
+      padding: 10px;
+      border-radius: 5px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .buttons {
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin-right: 10px;
+      border: none;
+      border-radius: 5px;
+      background-color: #333;
+      color: white;
+      cursor: pointer;
+    }
+
+    #feedback {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Susun Kata Bahasa Inggris:</h2>
+    <p>Seret dan letakkan kata-kata ke kotak di bawah untuk menyusun kalimat yang benar.</p>
+
+    <div id="wordBox" class="word-box">
+      <!-- Kata-kata akan dimasukkan di sini secara acak -->
+    </div>
+
+    <div id="drop-area" ondrop="drop(event)" ondragover="allowDrop(event)">
+      <!-- Tempat drop kata -->
+    </div>
+
+    <div class="buttons">
+      <button onclick="cekJawaban()">Hasil</button>
+      <button onclick="resetGame()">Reset</button>
+    </div>
+
+    <div id="feedback"></div>
+  </div>
+
+  <script>
+    const kataAsli = ["I", "am", "going", "to", "the", "market"];
+    let kataAcak = [];
+
+    function acakKata(kataArray) {
+      const array = [...kataArray];
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function tampilkanKata() {
+      const wordBox = document.getElementById("wordBox");
+      wordBox.innerHTML = "";
+      kataAcak = acakKata(kataAsli);
+      kataAcak.forEach((kata, index) => {
+        const span = document.createElement("span");
+        span.innerText = kata;
+        span.className = "word";
+        span.id = "word-" + index;
+        span.draggable = true;
+        span.ondragstart = drag;
+        wordBox.appendChild(span);
+      });
+
+      document.getElementById("drop-area").innerHTML = "";
+      document.getElementById("feedback").innerText = "";
+    }
+
+    function allowDrop(ev) {
+      ev.preventDefault();
+    }
+
+    function drag(ev) {
+      ev.dataTransfer.setData("text", ev.target.id);
+    }
+
+    function drop(ev) {
+      ev.preventDefault();
+      const id = ev.dataTransfer.getData("text");
+      const dragged = document.getElementById(id);
+      if (dragged) {
+        const dropArea = document.getElementById("drop-area");
+        dropArea.appendChild(dragged);
+      }
+    }
+
+    function cekJawaban() {
+      const dropArea = document.getElementById("drop-area");
+      const anakKata = dropArea.getElementsByClassName("word");
+      let jawaban = [];
+      for (let span of anakKata) {
+        jawaban.push(span.innerText);
+      }
+      const hasil = jawaban.join("-");
+
+      if (hasil === "I-am-going-to-the-market") {
+        document.getElementById("feedback").innerText = "Hebat, jawaban Anda benar!";
+        document.getElementById("feedback").style.color = "green";
+      } else {
+        document.getElementById("feedback").innerText = "Maaf, jawaban Anda salah. Ulangi lagi.";
+        document.getElementById("feedback").style.color = "red";
+      }
+    }
+
+    function resetGame() {
+      tampilkanKata();
+    }
+
+    // Mulai game
+    window.onload = tampilkanKata;
+  </script>
+
+</body>
+</html>
